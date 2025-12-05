@@ -1,0 +1,33 @@
+{
+  "name": "ohmyreads",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "AI-powered book tracker and reading companion",
+  "author": "OhMyReads Team",
+  "license": "MIT",
+  "keywords": ["books", "reading", "tracker", "library", "recommendations"],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "recharts": "^3.5.1",
+    "lucide-react": "^0.555.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}

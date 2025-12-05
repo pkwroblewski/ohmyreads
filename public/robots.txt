@@ -1,0 +1,27 @@
+# OhMyReads robots.txt
+# AI-powered book tracker and reading companion
+
+User-agent: *
+Allow: /
+
+# Allow crawling of main public pages
+Allow: /discovery
+Allow: /genres
+Allow: /community
+Allow: /blog
+Allow: /faq
+Allow: /contact
+Allow: /privacy
+
+# Disallow private/authenticated pages
+Disallow: /my-shelf
+Disallow: /analytics
+Disallow: /groups
+Disallow: /profile
+Disallow: /admin
+
+# Sitemap
+Sitemap: https://ohmyreads.app/sitemap.xml
+
+# Crawl-delay for politeness
+Crawl-delay: 1
