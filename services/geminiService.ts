@@ -13,23 +13,33 @@ export const searchBooks = async (query: string): Promise<Book[]> => {
   try {
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.0-flash-exp",
-      tools: [{ googleSearch: {} }]
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: SchemaType.ARRAY,
+          items: {
+            type: SchemaType.OBJECT,
+            properties: {
+              title: { type: SchemaType.STRING },
+              author: { type: SchemaType.STRING },
+              description: { type: SchemaType.STRING },
+              rating: { type: SchemaType.NUMBER },
+              moods: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+              publishedDate: { type: SchemaType.STRING },
+              pageCount: { type: SchemaType.NUMBER },
+              awards: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+              series: { type: SchemaType.STRING },
+              characters: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
+            }
+          }
+        }
+      }
     });
     
     const prompt = `Find 5 highly-rated books related to this query: "${query}". 
       Prioritize books with high ratings (4.0+) and critical acclaim. 
       Ensure descriptions are detailed, engaging, and capture the narrative depth (approx 3 sentences).
-      Return a RAW JSON array (no markdown formatting, no code blocks) where each object has: 
-      - title
-      - author
-      - description (detailed)
-      - rating (approximate 0-5)
-      - moods (array of strings)
-      - publishedDate (year or short date string)
-      - pageCount (approximate number)
-      - awards (array of major awards won, if any)
-      - series (series name and number, e.g. "Dune #1", if applicable)
-      - characters (array of main character names).`;
+      Return JSON array where each object has: title, author, description, rating (0-5), moods, publishedDate, pageCount, awards, series, characters.`;
     
     const result = await model.generateContent(prompt);
     const response = result.response;
@@ -37,14 +47,11 @@ export const searchBooks = async (query: string): Promise<Book[]> => {
     
     if (!text) return [];
     
-    // Clean markdown code blocks if present since we can't use JSON mode with tools
-    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-    
     const data = JSON.parse(text);
     return data.map((item: any, index: number) => ({
       ...item,
       id: `search-${index}-${Date.now()}`,
-      coverUrl: `https://picsum.photos/seed/${encodeURIComponent(item.title)}/300/450` // Placeholder as search doesn't return images easily
+      coverUrl: `https://picsum.photos/seed/${encodeURIComponent(item.title)}/300/450`
     }));
   } catch (error) {
     console.error("Search failed", error);
@@ -162,19 +169,30 @@ export const getRealTimeTrends = async (): Promise<Book[]> => {
     try {
         const model = genAI.getGenerativeModel({ 
           model: "gemini-2.0-flash-exp",
-          tools: [{ googleSearch: {} }]
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: SchemaType.ARRAY,
+              items: {
+                type: SchemaType.OBJECT,
+                properties: {
+                  title: { type: SchemaType.STRING },
+                  author: { type: SchemaType.STRING },
+                  description: { type: SchemaType.STRING },
+                  rating: { type: SchemaType.NUMBER },
+                  moods: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
+                }
+              }
+            }
+          }
         });
 
-        const prompt = `Search for the current New York Times Fiction Bestseller list and trending books for this week. 
-            Identify 4 top fiction books that are currently trending right now.
-            Return a RAW JSON array (no markdown) where each object has: title, author, description, rating (estimate), moods.`;
+        const prompt = `List 4 recent popular fiction books that are currently trending. Consider New York Times bestsellers and popular titles. Return JSON array with: title, author, description, rating (estimate), moods.`;
 
         const result = await model.generateContent(prompt);
         let text = result.response.text();
         
         if (!text) return [];
-        
-        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
         
         const data = JSON.parse(text);
         return data.map((item: any, index: number) => ({
