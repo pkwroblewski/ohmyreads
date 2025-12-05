@@ -40,6 +40,12 @@
 
 ---
 
+## 🚀 Live Demo
+
+**[View Live App →](https://oh-my-reads-gemini.vercel.app)**
+
+---
+
 ## 🛠️ Tech Stack
 
 - **Frontend Framework**: React 19
