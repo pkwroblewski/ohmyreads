@@ -6,7 +6,13 @@
   "description": "AI-powered book tracker and reading companion",
   "author": "OhMyReads Team",
   "license": "MIT",
-  "keywords": ["books", "reading", "tracker", "library", "recommendations"],
+  "keywords": [
+    "books",
+    "reading",
+    "tracker",
+    "library",
+    "recommendations"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -15,10 +21,11 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.86.2",
+    "lucide-react": "^0.555.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "recharts": "^3.5.1",
-    "lucide-react": "^0.555.0"
+    "recharts": "^3.5.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
