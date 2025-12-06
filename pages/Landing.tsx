@@ -4,7 +4,7 @@ import { getCuratedList, getCommunityFavorites, getRealTimeTrends, getSourceInfo
 import { BookCard } from '../components/BookCard';
 import { AdPlaceholder } from '../components/AdPlaceholder';
 import { usePageMeta, PAGE_META } from '../hooks/usePageMeta';
-import { Loader2, BookOpen, Heart, TrendingUp, Sparkles, LogIn, Cpu } from 'lucide-react';
+import { Loader2, BookOpen, Heart, TrendingUp, Sparkles, LogIn, Cpu, BarChart3 } from 'lucide-react';
 
 interface LandingProps {
   onBookClick: (book: Book) => void;
@@ -40,74 +40,38 @@ export const Landing: React.FC<LandingProps> = ({ onBookClick, onSignIn, onSignU
   }, []);
 
   return (
-    <div className="space-y-16 animate-fade-in pb-12">
-      {/* Hero Section */}
+    <div className="space-y-12 animate-fade-in pb-12">
+      {/* Compact Hero Section with Integrated Features */}
       <section className="relative overflow-hidden">
-        <div className="absolute -top-32 -right-32 w-96 h-96 bg-amber-100 dark:bg-amber-900/20 rounded-full blur-3xl opacity-60"></div>
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-leaf/10 dark:bg-leaf/5 rounded-full blur-3xl"></div>
+        <div className="absolute -top-20 -right-20 w-64 h-64 bg-amber-100 dark:bg-amber-900/20 rounded-full blur-3xl opacity-50"></div>
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-leaf/10 dark:bg-leaf/5 rounded-full blur-3xl"></div>
         
-        <div className="relative z-10 text-center py-12 md:py-20">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-full text-sm font-medium text-accent mb-6 shadow-sm">
-            <Sparkles size={16} />
-            Your Personal Reading Companion
-          </div>
-          
-          <h1 className="text-4xl md:text-6xl font-serif font-bold text-ink dark:text-stone-100 mb-6 leading-tight">
-            Your AI-Powered<br />
-            <span className="text-accent">Book Discovery App.</span>
+        <div className="relative z-10 text-center py-8 md:py-10">
+          <h1 className="text-3xl md:text-5xl font-serif font-bold text-ink dark:text-stone-100 mb-4 leading-tight">
+            Your AI-Powered <span className="text-accent">Book Discovery App.</span>
           </h1>
           
-          <p className="text-lg md:text-xl text-stone-600 dark:text-stone-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Track your reading progress, set goals, and discover your next favorite book with 
-            OhMyReads — the smart book tracker and reading companion for book lovers everywhere.
+          <p className="text-base md:text-lg text-stone-600 dark:text-stone-400 max-w-xl mx-auto mb-6">
+            Track reading, discover books, and connect with readers worldwide.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={onSignUp}
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-ink dark:bg-accent text-white font-bold rounded-full hover:bg-stone-800 dark:hover:bg-amber-600 transition-all shadow-lg hover:-translate-y-1"
-            >
-              <BookOpen size={20} />
-              Start Your Reading Journey
-            </button>
-            <button
-              onClick={onSignIn}
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white dark:bg-stone-800 text-ink dark:text-stone-200 font-bold rounded-full border-2 border-stone-200 dark:border-stone-700 hover:border-accent hover:text-accent transition-all hover:-translate-y-1"
-            >
-              <LogIn size={20} />
-              Sign In
-            </button>
+          {/* Integrated Feature Badges */}
+          <div className="flex flex-wrap justify-center gap-3">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-full text-sm font-medium text-amber-700 dark:text-amber-300">
+              <BookOpen size={16} />
+              Reading Log
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-full text-sm font-medium text-purple-700 dark:text-purple-300">
+              <Sparkles size={16} />
+              AI Recommendations
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-full text-sm font-medium text-indigo-700 dark:text-indigo-300">
+              <BarChart3 size={16} />
+              Reading Stats
+            </div>
           </div>
         </div>
       </section>
-
-      {/* Features Strip - SEO-optimized feature descriptions */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6" aria-label="Key Features">
-        <article className="bg-white dark:bg-stone-900 rounded-xl p-6 border border-stone-100 dark:border-stone-800 text-center">
-          <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-accent">
-            <BookOpen size={24} />
-          </div>
-          <h3 className="font-bold text-ink dark:text-stone-100 mb-2">Personal Reading Log</h3>
-          <p className="text-sm text-stone-500 dark:text-stone-400">Track your reading progress, set daily page goals, and build streaks to stay motivated</p>
-        </article>
-        <article className="bg-white dark:bg-stone-900 rounded-xl p-6 border border-stone-100 dark:border-stone-800 text-center">
-          <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-rose-500">
-            <Heart size={24} />
-          </div>
-          <h3 className="font-bold text-ink dark:text-stone-100 mb-2">AI Book Recommendations</h3>
-          <p className="text-sm text-stone-500 dark:text-stone-400">Discover books tailored to your taste with our intelligent book discovery engine</p>
-        </article>
-        <article className="bg-white dark:bg-stone-900 rounded-xl p-6 border border-stone-100 dark:border-stone-800 text-center">
-          <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-500">
-            <TrendingUp size={24} />
-          </div>
-          <h3 className="font-bold text-ink dark:text-stone-100 mb-2">Reading Statistics</h3>
-          <p className="text-sm text-stone-500 dark:text-stone-400">Visualize your reading habits with beautiful charts and yearly progress tracking</p>
-        </article>
-      </section>
-
-      {/* Ad Banner */}
-      <AdPlaceholder slot="banner" className="my-4" />
 
       {/* Curated Books */}
       <section aria-labelledby="curated-heading">
