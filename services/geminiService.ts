@@ -1,214 +1,101 @@
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+/**
+ * Gemini AI Service - Secure Client
+ * 
+ * This service calls Supabase Edge Functions instead of using the API key directly.
+ * Your Gemini API key stays secure on the server - users can't see or steal it!
+ */
+
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { Book } from "../types";
 
-// Initialize the client
-// The API Key is injected via import.meta.env.VITE_GEMINI_API_KEY
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-const genAI = new GoogleGenerativeAI(apiKey);
+// Supabase Edge Function URL
+const EDGE_FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gemini-ai`;
 
 /**
- * Searches for books using Gemini with Google Search Grounding to get real data.
+ * Call the secure Edge Function
+ */
+async function callGeminiFunction(action: string, payload: any = {}) {
+  if (!isSupabaseConfigured()) {
+    console.warn('Supabase not configured, AI features disabled');
+    return null;
+  }
+
+  try {
+    // Get the current session for authorization
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    const response = await fetch(EDGE_FUNCTION_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({ action, payload }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'AI request failed');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Gemini ${action} failed:`, error);
+    return null;
+  }
+}
+
+/**
+ * Searches for books using Gemini AI (server-side secure)
  */
 export const searchBooks = async (query: string): Promise<Book[]> => {
-  try {
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash-exp",
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: SchemaType.ARRAY,
-          items: {
-            type: SchemaType.OBJECT,
-            properties: {
-              title: { type: SchemaType.STRING },
-              author: { type: SchemaType.STRING },
-              description: { type: SchemaType.STRING },
-              rating: { type: SchemaType.NUMBER },
-              moods: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
-              publishedDate: { type: SchemaType.STRING },
-              pageCount: { type: SchemaType.NUMBER },
-              awards: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
-              series: { type: SchemaType.STRING },
-              characters: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
-            }
-          }
-        }
-      }
-    });
-    
-    const prompt = `Find 5 highly-rated books related to this query: "${query}". 
-      Prioritize books with high ratings (4.0+) and critical acclaim. 
-      Ensure descriptions are detailed, engaging, and capture the narrative depth (approx 3 sentences).
-      Return JSON array where each object has: title, author, description, rating (0-5), moods, publishedDate, pageCount, awards, series, characters.`;
-    
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    let text = response.text();
-    
-    if (!text) return [];
-    
-    const data = JSON.parse(text);
-    return data.map((item: any, index: number) => ({
-      ...item,
-      id: `search-${index}-${Date.now()}`,
-      coverUrl: `https://picsum.photos/seed/${encodeURIComponent(item.title)}/300/450`
-    }));
-  } catch (error) {
-    console.error("Search failed", error);
-    return [];
-  }
+  const result = await callGeminiFunction('search', { query });
+  return result || [];
 };
 
 /**
- * Chat with a "Librarian" persona.
+ * Chat with a "Librarian" AI persona (server-side secure)
  */
-export const chatWithLibrarian = async (history: {role: string, parts: {text: string}[]}[], message: string) => {
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash-exp',
-      systemInstruction: "You are OhMyReads, a sophisticated, well-read, and warm librarian AI. You love helping people find books. Keep answers concise but insightful."
-    });
-
-    const chat = model.startChat({
-        history: history,
-    });
-
-    const result = await chat.sendMessage(message);
-    return result.response.text();
-}
+export const chatWithLibrarian = async (
+  history: { role: string; parts: { text: string }[] }[],
+  message: string
+): Promise<string> => {
+  const result = await callGeminiFunction('chat', { history, message });
+  return result?.response || "I'm sorry, I couldn't process that request. Please try again.";
+};
 
 /**
- * Get personalized recommendations (Simulated for Home Page)
+ * Get curated book recommendations (server-side secure)
  */
 export const getCuratedList = async (): Promise<Book[]> => {
-    try {
-        const model = genAI.getGenerativeModel({ 
-          model: "gemini-2.0-flash-exp",
-          generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: {
-              type: SchemaType.ARRAY,
-              items: {
-                type: SchemaType.OBJECT,
-                properties: {
-                  title: { type: SchemaType.STRING },
-                  author: { type: SchemaType.STRING },
-                  moods: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
-                  rating: { type: SchemaType.NUMBER },
-                  awards: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
-                  series: { type: SchemaType.STRING },
-                  characters: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
-                }
-              }
-            }
-          }
-        });
-
-        const result = await model.generateContent("List 4 trending, diverse fiction books from the last 5 years that have high literary merit. Return JSON. Include awards if any.");
-        const text = result.response.text();
-        
-        if (!text) return [];
-        const data = JSON.parse(text);
-        return data.map((item: any, index: number) => ({
-             ...item,
-             id: `curated-${index}`,
-             coverUrl: `https://picsum.photos/seed/${encodeURIComponent(item.title)}/300/450`,
-             description: "A trending masterpiece selected just for you."
-         }));
-
-    } catch (e) {
-        console.error(e);
-        return [];
-    }
-}
+  const result = await callGeminiFunction('curated');
+  return result || [];
+};
 
 /**
- * Get "Community Favorites" - Books that generate high engagement/discussion
+ * Get community favorite books (server-side secure)
  */
 export const getCommunityFavorites = async (): Promise<Book[]> => {
-    try {
-        const model = genAI.getGenerativeModel({ 
-          model: "gemini-2.0-flash-exp",
-          generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: {
-              type: SchemaType.ARRAY,
-              items: {
-                type: SchemaType.OBJECT,
-                properties: {
-                  title: { type: SchemaType.STRING },
-                  author: { type: SchemaType.STRING },
-                  moods: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
-                  rating: { type: SchemaType.NUMBER },
-                  description: { type: SchemaType.STRING }
-                }
-              }
-            }
-          }
-        });
-
-        const result = await model.generateContent("List 4 books that are considered 'Cult Classics' or 'Viral Hits' in modern online book communities (like BookTok or Goodreads). Books that generate intense discussion and have passionate fanbases. Return JSON.");
-        const text = result.response.text();
-        
-        if (!text) return [];
-        const data = JSON.parse(text);
-        return data.map((item: any, index: number) => ({
-             ...item,
-             id: `community-${index}`,
-             coverUrl: `https://picsum.photos/seed/${encodeURIComponent(item.title)}/300/450`,
-         }));
-    } catch (e) {
-        console.error(e);
-        return [];
-    }
-}
+  const result = await callGeminiFunction('community');
+  return result || [];
+};
 
 /**
- * Get "The Zeitgeist" - Real-time trends using Google Search Grounding
+ * Get real-time trending books (server-side secure)
  */
 export const getRealTimeTrends = async (): Promise<Book[]> => {
-    try {
-        const model = genAI.getGenerativeModel({ 
-          model: "gemini-2.0-flash-exp",
-          generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: {
-              type: SchemaType.ARRAY,
-              items: {
-                type: SchemaType.OBJECT,
-                properties: {
-                  title: { type: SchemaType.STRING },
-                  author: { type: SchemaType.STRING },
-                  description: { type: SchemaType.STRING },
-                  rating: { type: SchemaType.NUMBER },
-                  moods: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
-                }
-              }
-            }
-          }
-        });
-
-        const prompt = `List 4 recent popular fiction books that are currently trending. Consider New York Times bestsellers and popular titles. Return JSON array with: title, author, description, rating (estimate), moods.`;
-
-        const result = await model.generateContent(prompt);
-        let text = result.response.text();
-        
-        if (!text) return [];
-        
-        const data = JSON.parse(text);
-        return data.map((item: any, index: number) => ({
-             ...item,
-             id: `zeitgeist-${index}`,
-             coverUrl: `https://picsum.photos/seed/${encodeURIComponent(item.title)}/300/450`,
-        }));
-    } catch (e) {
-        console.error("Zeitgeist fetch failed", e);
-        return [];
-    }
-}
+  const result = await callGeminiFunction('trends');
+  return result || [];
+};
 
 /**
- * Placeholder image generator since we removed visualizer
+ * Placeholder - image generation not implemented
  */
-export const generateBookEssence = async (title: string, author: string, style: string): Promise<string | null> => {
-    return null; 
-}
+export const generateBookEssence = async (
+  title: string,
+  author: string,
+  style: string
+): Promise<string | null> => {
+  return null;
+};
