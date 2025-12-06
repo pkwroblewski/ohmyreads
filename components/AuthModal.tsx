@@ -3,16 +3,24 @@ import { X, UserCheck, Mail, Lock, User as UserIcon, AlertCircle } from 'lucide-
 import { useAuth } from '../hooks/useAuth';
 import { User } from '../types';
 
+type AuthMode = 'signin' | 'signup' | 'forgot';
+
 interface AuthModalProps {
     isOpen: boolean;
     onClose: () => void;
     onLogin: (user: User) => void;
+    initialMode?: AuthMode;
 }
 
-type AuthMode = 'signin' | 'signup' | 'forgot';
-
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
-    const [mode, setMode] = useState<AuthMode>('signin');
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, initialMode = 'signin' }) => {
+    const [mode, setMode] = useState<AuthMode>(initialMode);
+    
+    // Reset mode when modal opens with a new initialMode
+    React.useEffect(() => {
+        if (isOpen) {
+            setMode(initialMode);
+        }
+    }, [isOpen, initialMode]);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');

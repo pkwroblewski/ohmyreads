@@ -9,9 +9,10 @@ import { Loader2, BookOpen, Heart, TrendingUp, Sparkles, LogIn, Cpu } from 'luci
 interface LandingProps {
   onBookClick: (book: Book) => void;
   onSignIn: () => void;
+  onSignUp: () => void;
 }
 
-export const Landing: React.FC<LandingProps> = ({ onBookClick, onSignIn }) => {
+export const Landing: React.FC<LandingProps> = ({ onBookClick, onSignIn, onSignUp }) => {
   const [trending, setTrending] = useState<Book[]>([]);
   const [communityPicks, setCommunityPicks] = useState<Book[]>([]);
   const [zeitgeist, setZeitgeist] = useState<Book[]>([]);
@@ -63,7 +64,7 @@ export const Landing: React.FC<LandingProps> = ({ onBookClick, onSignIn }) => {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={onSignIn}
+              onClick={onSignUp}
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-ink dark:bg-accent text-white font-bold rounded-full hover:bg-stone-800 dark:hover:bg-amber-600 transition-all shadow-lg hover:-translate-y-1"
             >
               <BookOpen size={20} />
@@ -205,11 +206,11 @@ export const Landing: React.FC<LandingProps> = ({ onBookClick, onSignIn }) => {
             Create your free account and begin tracking your books, discovering new reads, and joining our community of book lovers.
           </p>
           <button
-            onClick={onSignIn}
+            onClick={onSignUp}
             className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-white font-bold rounded-full hover:bg-amber-600 transition-all shadow-lg hover:-translate-y-1"
           >
             <Sparkles size={20} />
-            Add Your First Book
+            Create Free Account
           </button>
         </div>
       </section>

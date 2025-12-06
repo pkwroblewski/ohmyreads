@@ -23,7 +23,7 @@ import { ViewState, Book, User, CurrentRead, ReadingGoals, ExtendedUser } from '
 import { ReadingService, LibraryService, GoalsService, UserService } from './services/mockBackend';
 import { initAnalytics, trackPageView, trackBookEvent, trackEvent } from './lib/analytics';
 import { VIEW_PATHS } from './lib/constants';
-import { Check, X, LogIn, LogOut, FileText, ArrowLeft } from 'lucide-react';
+import { Check, X, LogIn, LogOut, FileText, ArrowLeft, UserPlus } from 'lucide-react';
 
 function App() {
   // Default to LANDING for public users
@@ -31,6 +31,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState<ExtendedUser | null>(null);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [isAddBookOpen, setIsAddBookOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   
@@ -103,7 +104,7 @@ function App() {
   const handleNavigation = (view: ViewState) => {
     // Protect private routes - redirect to auth if not logged in
     if (!currentUser && (view === ViewState.MY_SHELF || view === ViewState.ANALYTICS || view === ViewState.GROUPS)) {
-      setIsAuthOpen(true);
+      handleSignIn();
       return;
     }
     setView(view);
@@ -119,7 +120,15 @@ function App() {
     showToast(`Welcome back, ${user.name}!`);
   };
 
-  const handleSignInCTA = () => {
+  // Open auth modal in signin mode
+  const handleSignIn = () => {
+    setAuthMode('signin');
+    setIsAuthOpen(true);
+  };
+
+  // Open auth modal in signup mode
+  const handleSignUp = () => {
+    setAuthMode('signup');
     setIsAuthOpen(true);
   };
   
@@ -196,12 +205,13 @@ function App() {
         return (
           <Landing 
             onBookClick={handleBookSelect}
-            onSignIn={handleSignInCTA}
+            onSignIn={handleSignIn}
+            onSignUp={handleSignUp}
           />
         );
       case ViewState.MY_SHELF:
         if (!currentUser) {
-          return <Landing onBookClick={handleBookSelect} onSignIn={handleSignInCTA} />;
+          return <Landing onBookClick={handleBookSelect} onSignIn={handleSignIn} onSignUp={handleSignUp} />;
         }
         return (
           <MyShelf 
@@ -227,14 +237,14 @@ function App() {
           <Community 
             currentUser={currentUser}
             onNavigate={handleNavigation}
-            onSignIn={handleSignInCTA}
+            onSignIn={handleSignIn}
           />
         );
       case ViewState.GROUPS:
         return (
           <Groups 
             currentUser={currentUser}
-            onSignIn={handleSignInCTA}
+            onSignIn={handleSignIn}
           />
         );
       case ViewState.USER_PROFILE:
@@ -248,7 +258,7 @@ function App() {
         );
       case ViewState.ANALYTICS:
         if (!currentUser) {
-          return <Landing onBookClick={handleBookSelect} onSignIn={handleSignInCTA} />;
+          return <Landing onBookClick={handleBookSelect} onSignIn={handleSignIn} onSignUp={handleSignUp} />;
         }
         return <Analytics />;
       case ViewState.CONTACT:
@@ -264,7 +274,7 @@ function App() {
       case ViewState.NOT_FOUND:
         return <NotFound onNavigate={handleNavigation} />;
       default:
-        return <Landing onBookClick={handleBookSelect} onSignIn={handleSignInCTA} />;
+        return <Landing onBookClick={handleBookSelect} onSignIn={handleSignIn} onSignUp={handleSignUp} />;
     }
   };
 
@@ -304,7 +314,7 @@ function App() {
           if (currentUser) {
             setIsAddBookOpen(true);
           } else {
-            setIsAuthOpen(true);
+            handleSignUp();
           }
         }}
       />
@@ -348,12 +358,20 @@ function App() {
                   </button>
               </div>
             ) : (
-              <button 
-                  onClick={() => setIsAuthOpen(true)}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-ink dark:bg-stone-700 text-white font-bold text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
-              >
-                  <LogIn size={18} /> Sign In
-              </button>
+              <div className="flex items-center gap-3">
+                <button 
+                    onClick={handleSignIn}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white dark:bg-stone-800 text-ink dark:text-stone-200 font-bold text-sm border border-stone-200 dark:border-stone-700 hover:border-accent hover:text-accent transition-all"
+                >
+                    <LogIn size={18} /> Sign In
+                </button>
+                <button 
+                    onClick={handleSignUp}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-ink dark:bg-accent text-white font-bold text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                >
+                    <UserPlus size={18} /> Get Started
+                </button>
+              </div>
             )}
         </div>
 
@@ -378,7 +396,7 @@ function App() {
              isOpen={!!selectedBook} 
              onClose={() => setSelectedBook(null)}
              currentUser={currentUser}
-             onLoginReq={() => setIsAuthOpen(true)}
+             onLoginReq={handleSignIn}
              onStartReading={handleStartReading}
              onAskConcierge={handleAskConcierge}
           />
@@ -387,7 +405,8 @@ function App() {
       <AuthModal 
         isOpen={isAuthOpen} 
         onClose={() => setIsAuthOpen(false)} 
-        onLogin={handleLogin} 
+        onLogin={handleLogin}
+        initialMode={authMode}
       />
 
       <AddBookModal 
