@@ -35,4 +35,7 @@ Thumbs.db
 # Cursor
 .cursor
 
+# Supabase
+supabase/.temp
+
 .vercel
