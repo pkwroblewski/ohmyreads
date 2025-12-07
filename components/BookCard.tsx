@@ -1,22 +1,33 @@
 import React from 'react';
 import { Book } from '../types';
-import { Star, ImageOff, Book as BookIcon } from 'lucide-react';
+import { Star, Book as BookIcon, Plus, Eye } from 'lucide-react';
 
 interface BookCardProps {
   book: Book;
   compact?: boolean;
   onClick?: (book: Book) => void;
+  onAddToLibrary?: (book: Book) => void;
 }
 
-export const BookCard: React.FC<BookCardProps> = ({ book, compact = false, onClick }) => {
+export const BookCard: React.FC<BookCardProps> = ({ book, compact = false, onClick, onAddToLibrary }) => {
   const hasCover = Boolean(book.coverUrl && book.coverUrl.trim() !== '');
+
+  const handleAddClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onAddToLibrary?.(book);
+  };
+
+  const handleViewClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClick?.(book);
+  };
 
   return (
     <div 
         onClick={() => onClick?.(book)}
-        className="group relative bg-white dark:bg-stone-900 rounded-lg overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-soft dark:border-stone-800 flex flex-col h-full cursor-pointer"
+        className="group relative bg-white dark:bg-zinc-900/40 rounded-lg overflow-hidden shadow-sm hover:shadow-xl dark:hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300 border border-soft dark:border-zinc-800/60 flex flex-col h-full cursor-pointer"
     >
-      <div className={`relative overflow-hidden bg-soft dark:bg-stone-800 ${compact ? 'h-48' : 'h-64'}`}>
+      <div className={`relative overflow-hidden bg-soft dark:bg-zinc-800 ${compact ? 'h-48' : 'h-64'}`}>
         {hasCover ? (
             <img 
               src={book.coverUrl} 
@@ -24,31 +35,50 @@ export const BookCard: React.FC<BookCardProps> = ({ book, compact = false, onCli
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 opacity-90 group-hover:opacity-100"
             />
         ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-soft to-sand dark:from-stone-800 dark:to-stone-900 group-hover:scale-105 transition-transform duration-500">
-                <div className="w-12 h-16 border-2 border-stone-300 dark:border-stone-600 rounded-sm flex items-center justify-center mb-3 bg-white/50 dark:bg-black/20">
-                    <BookIcon className="text-stone-400 dark:text-stone-500" size={20} />
+            <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-soft to-sand dark:from-zinc-800 dark:to-zinc-900 group-hover:scale-105 transition-transform duration-500">
+                <div className="w-12 h-16 border-2 border-stone-300 dark:border-zinc-600 rounded-sm flex items-center justify-center mb-3 bg-white/50 dark:bg-black/20">
+                    <BookIcon className="text-stone-400 dark:text-zinc-500" size={20} />
                 </div>
-                <h4 className="font-serif font-bold text-ink dark:text-stone-200 text-sm leading-tight line-clamp-2">{book.title}</h4>
-                <p className="text-[10px] text-stone-500 dark:text-stone-400 mt-1 line-clamp-1">{book.author}</p>
+                <h4 className="font-serif font-bold text-ink dark:text-zinc-200 text-sm leading-tight line-clamp-2">{book.title}</h4>
+                <p className="text-[10px] text-stone-500 dark:text-zinc-400 mt-1 line-clamp-1">{book.author}</p>
             </div>
         )}
 
-        <div className="absolute top-2 right-2 bg-white/90 dark:bg-stone-900/90 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1 shadow-sm text-ink dark:text-stone-100 z-10">
-            <Star size={12} className="text-accent fill-accent" />
+        {/* Hover Overlay with Actions */}
+        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3 z-20">
+          <button 
+            onClick={handleAddClick}
+            className="p-2.5 bg-white text-ink rounded-full hover:scale-110 transition-transform shadow-lg"
+            title="Add to Library"
+          >
+            <Plus size={18} />
+          </button>
+          <button 
+            onClick={handleViewClick}
+            className="p-2.5 bg-zinc-800 text-white border border-zinc-600 rounded-full hover:scale-110 transition-transform shadow-lg"
+            title="Quick View"
+          >
+            <Eye size={18} />
+          </button>
+        </div>
+
+        {/* Rating Badge */}
+        <div className="absolute top-2 right-2 bg-black/70 dark:bg-black/80 backdrop-blur-sm px-2 py-1 rounded text-[11px] font-bold flex items-center gap-1 shadow-sm text-white border border-white/10 z-10">
+            <Star size={11} className="text-amber-400 dark:text-yellow-400 fill-current" />
             {book.rating ? book.rating.toFixed(1) : 'N/A'}
         </div>
       </div>
       
-      <div className="p-4 flex flex-col flex-1 bg-white dark:bg-stone-900">
-        <h3 className="font-serif font-bold text-lg text-ink dark:text-stone-100 leading-tight mb-1 line-clamp-2">
+      <div className="p-4 flex flex-col flex-1 bg-white dark:bg-zinc-900/40">
+        <h3 className="font-serif font-bold text-lg text-ink dark:text-zinc-100 leading-tight mb-1 line-clamp-2 group-hover:text-accent dark:group-hover:text-indigo-400 transition-colors">
           {book.title}
         </h3>
-        <p className="text-sm text-stone-500 dark:text-stone-400 font-medium mb-2">{book.author}</p>
+        <p className="text-sm text-stone-500 dark:text-zinc-400 font-medium mb-2">{book.author}</p>
         
         {book.moods && (
           <div className="flex flex-wrap gap-1 mt-auto pt-2">
             {book.moods.slice(0, 3).map((mood, i) => (
-              <span key={i} className="text-[10px] uppercase tracking-wider bg-soft dark:bg-stone-800 text-stone-600 dark:text-stone-400 px-2 py-1 rounded-sm">
+              <span key={i} className="text-[10px] uppercase tracking-wider bg-soft dark:bg-zinc-800 text-stone-600 dark:text-zinc-400 px-2 py-1 rounded-sm">
                 {mood}
               </span>
             ))}

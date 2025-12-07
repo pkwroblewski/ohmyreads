@@ -8,35 +8,53 @@ body {
   color: #1F3B34;
 }
 
+/* Dark Mode - Modern Zinc Palette */
 .dark body {
-  background-color: #0c0a09;
-  color: #f5f5f4;
+  background-color: #09090b; /* zinc-950 */
+  color: #fafafa; /* zinc-50 */
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Light Mode */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.dark ::-webkit-scrollbar-track {
-  background: #1c1917;
-}
-
 ::-webkit-scrollbar-thumb {
   background: #D1CDC0;
-  border-radius: 4px;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #44403c;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #B8B2A0;
+}
+
+/* Custom Scrollbar - Dark Mode (Sleek Zinc Style) */
+.dark ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #3f3f46; /* zinc-700 */
+  border-radius: 3px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #52525b; /* zinc-600 */
+}
+
+/* Hide Scrollbar Utility */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Animations */
@@ -52,6 +70,10 @@ body {
   animation: scaleIn 0.2s ease-out;
 }
 
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -65,4 +87,36 @@ body {
 @keyframes scaleIn {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Dark Mode Accent Overrides for Modern Look */
+.dark .text-accent {
+  color: #818cf8; /* indigo-400 for dark mode */
+}
+
+.dark .bg-accent {
+  background-color: #6366f1; /* indigo-500 for dark mode */
+}
+
+.dark .border-accent {
+  border-color: #6366f1;
+}
+
+.dark .hover\:text-accent:hover {
+  color: #a5b4fc; /* indigo-300 */
+}
+
+/* Selection Highlight */
+::selection {
+  background-color: rgba(217, 119, 6, 0.3); /* amber accent */
+}
+
+.dark ::selection {
+  background-color: rgba(99, 102, 241, 0.3); /* indigo accent */
+  color: #e0e7ff;
 }

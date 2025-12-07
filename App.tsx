@@ -284,20 +284,20 @@ function App() {
   };
 
   return (
-    <div className="flex min-h-screen bg-paper dark:bg-stone-950 font-sans selection:bg-accent/30 transition-colors duration-300 relative">
+    <div className="flex min-h-screen bg-paper dark:bg-zinc-950 font-sans selection:bg-accent/30 transition-colors duration-300 relative">
       {/* Toast Notification */}
       <div className={`fixed top-6 right-6 z-[80] transition-all duration-300 transform ${toast.visible ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none'}`}>
-          <div className="bg-ink dark:bg-stone-800 text-white px-5 py-4 rounded-xl shadow-2xl flex items-center gap-4 border border-stone-700 dark:border-stone-600 min-w-[300px]">
+          <div className="bg-ink dark:bg-zinc-800 text-white px-5 py-4 rounded-xl shadow-2xl flex items-center gap-4 border border-zinc-700 dark:border-zinc-600 min-w-[300px]">
              <div className="w-8 h-8 bg-leaf rounded-full flex items-center justify-center text-white shrink-0 shadow-lg shadow-emerald-900/20">
                  <Check size={18} strokeWidth={3} />
              </div>
              <div className="flex-1">
                  <p className="font-bold text-sm">Success</p>
-                 <p className="text-xs text-stone-300 leading-snug">{toast.message}</p>
+                 <p className="text-xs text-zinc-300 leading-snug">{toast.message}</p>
              </div>
              <button 
                 onClick={() => setToast(prev => ({...prev, visible: false}))} 
-                className="text-stone-400 hover:text-white transition-colors p-1 rounded-full hover:bg-stone-700"
+                className="text-zinc-400 hover:text-white transition-colors p-1 rounded-full hover:bg-zinc-700"
              >
                  <X size={16} />
              </button>
@@ -321,15 +321,15 @@ function App() {
       
       <main className="flex-1 h-screen overflow-y-auto scroll-smooth relative flex flex-col">
         {/* Top Header Bar for Authentication & Blog */}
-        <div className="sticky top-0 z-40 px-6 py-4 md:px-12 bg-paper/90 dark:bg-stone-950/90 backdrop-blur-md border-b border-soft dark:border-stone-800 flex justify-end gap-4 items-center">
+        <div className="sticky top-0 z-40 px-6 py-4 md:px-12 bg-paper/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-soft dark:border-zinc-800 flex justify-end gap-4 items-center">
             
             {/* OhMyBlog Button / Back Button */}
             <button 
                 onClick={() => setView(currentView === ViewState.BLOG ? getBackDestination() : ViewState.BLOG)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all
                     ${currentView === ViewState.BLOG 
-                        ? 'bg-stone-200 dark:bg-stone-700 text-ink dark:text-stone-100 hover:bg-stone-300 dark:hover:bg-stone-600' 
-                        : 'bg-white dark:bg-stone-900 text-ink dark:text-stone-200 border border-stone-200 dark:border-stone-700 hover:border-accent hover:text-accent'
+                        ? 'bg-stone-200 dark:bg-zinc-700 text-ink dark:text-zinc-100 hover:bg-stone-300 dark:hover:bg-zinc-600' 
+                        : 'bg-white dark:bg-zinc-900 text-ink dark:text-zinc-200 border border-stone-200 dark:border-zinc-700 hover:border-accent hover:text-accent'
                     }`}
             >
                 {currentView === ViewState.BLOG ? (
@@ -345,9 +345,9 @@ function App() {
 
             {currentUser ? (
                <div className="flex items-center gap-4 animate-fade-in">
-                  <div className="flex items-center gap-3 p-1.5 pl-3 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 shadow-sm">
-                      <span className="text-sm font-bold text-ink dark:text-stone-100">{currentUser.name}</span>
-                      <img src={currentUser.avatar} alt="User" className="w-8 h-8 rounded-full object-cover border border-stone-100 dark:border-stone-600" />
+                  <div className="flex items-center gap-3 p-1.5 pl-3 rounded-full bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 shadow-sm">
+                      <span className="text-sm font-bold text-ink dark:text-zinc-100">{currentUser.name}</span>
+                      <img src={currentUser.avatar} alt="User" className="w-8 h-8 rounded-full object-cover border border-stone-100 dark:border-zinc-600" />
                   </div>
                   <button 
                       onClick={handleLogout}
@@ -361,13 +361,13 @@ function App() {
               <div className="flex items-center gap-3">
                 <button 
                     onClick={handleSignIn}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white dark:bg-stone-800 text-ink dark:text-stone-200 font-bold text-sm border border-stone-200 dark:border-stone-700 hover:border-accent hover:text-accent transition-all"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white dark:bg-zinc-800 text-ink dark:text-zinc-200 font-bold text-sm border border-stone-200 dark:border-zinc-700 hover:border-accent hover:text-accent transition-all"
                 >
                     <LogIn size={18} /> Sign In
                 </button>
                 <button 
                     onClick={handleSignUp}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-ink dark:bg-accent text-white font-bold text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-ink dark:bg-indigo-600 text-white font-bold text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
                 >
                     <UserPlus size={18} /> Get Started
                 </button>
