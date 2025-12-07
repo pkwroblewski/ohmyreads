@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Book } from '../types';
 import { Star, Book as BookIcon, Plus, Eye } from 'lucide-react';
 
@@ -10,7 +10,10 @@ interface BookCardProps {
 }
 
 export const BookCard: React.FC<BookCardProps> = ({ book, compact = false, onClick, onAddToLibrary }) => {
-  const hasCover = Boolean(book.coverUrl && book.coverUrl.trim() !== '');
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  
+  const hasCover = Boolean(book.coverUrl && book.coverUrl.trim() !== '' && !imageError);
 
   const handleAddClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -22,6 +25,25 @@ export const BookCard: React.FC<BookCardProps> = ({ book, compact = false, onCli
     onClick?.(book);
   };
 
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
+  // Fallback placeholder component
+  const PlaceholderCover = () => (
+    <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-soft to-sand dark:from-zinc-800 dark:to-zinc-900 group-hover:scale-105 transition-transform duration-500">
+      <div className="w-12 h-16 border-2 border-stone-300 dark:border-zinc-600 rounded-sm flex items-center justify-center mb-3 bg-white/50 dark:bg-black/20">
+        <BookIcon className="text-stone-400 dark:text-zinc-500" size={20} />
+      </div>
+      <h4 className="font-serif font-bold text-ink dark:text-zinc-200 text-sm leading-tight line-clamp-2">{book.title}</h4>
+      <p className="text-[10px] text-stone-500 dark:text-zinc-400 mt-1 line-clamp-1">{book.author}</p>
+    </div>
+  );
+
   return (
     <div 
         onClick={() => onClick?.(book)}
@@ -29,19 +51,22 @@ export const BookCard: React.FC<BookCardProps> = ({ book, compact = false, onCli
     >
       <div className={`relative overflow-hidden bg-soft dark:bg-zinc-800 ${compact ? 'h-48' : 'h-64'}`}>
         {hasCover ? (
+          <>
+            {/* Loading skeleton */}
+            {!imageLoaded && (
+              <div className="absolute inset-0 bg-gradient-to-br from-soft to-sand dark:from-zinc-800 dark:to-zinc-900 animate-pulse" />
+            )}
             <img 
               src={book.coverUrl} 
               alt={book.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 opacity-90 group-hover:opacity-100"
+              className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${imageLoaded ? 'opacity-90 group-hover:opacity-100' : 'opacity-0'}`}
+              onError={handleImageError}
+              onLoad={handleImageLoad}
+              loading="lazy"
             />
+          </>
         ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-soft to-sand dark:from-zinc-800 dark:to-zinc-900 group-hover:scale-105 transition-transform duration-500">
-                <div className="w-12 h-16 border-2 border-stone-300 dark:border-zinc-600 rounded-sm flex items-center justify-center mb-3 bg-white/50 dark:bg-black/20">
-                    <BookIcon className="text-stone-400 dark:text-zinc-500" size={20} />
-                </div>
-                <h4 className="font-serif font-bold text-ink dark:text-zinc-200 text-sm leading-tight line-clamp-2">{book.title}</h4>
-                <p className="text-[10px] text-stone-500 dark:text-zinc-400 mt-1 line-clamp-1">{book.author}</p>
-            </div>
+          <PlaceholderCover />
         )}
 
         {/* Hover Overlay with Actions */}

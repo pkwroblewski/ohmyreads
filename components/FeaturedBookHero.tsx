@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Book } from '../types';
 import { Star, BookOpen, Eye, Award } from 'lucide-react';
 
@@ -13,13 +13,26 @@ export const FeaturedBookHero: React.FC<FeaturedBookHeroProps> = ({
   onViewDetails,
   onStartReading 
 }) => {
-  const hasCover = Boolean(book.coverUrl && book.coverUrl.trim() !== '');
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  
+  const hasCover = Boolean(book.coverUrl && book.coverUrl.trim() !== '' && !imageError);
   
   // Extract year from publishedDate if available
   const year = book.publishedDate ? new Date(book.publishedDate).getFullYear() : null;
   
   // Get primary genre/mood
   const primaryGenre = book.moods?.[0] || 'Fiction';
+
+  const handleImageError = () => setImageError(true);
+  const handleImageLoad = () => setImageLoaded(true);
+
+  // Placeholder cover component
+  const PlaceholderCover = () => (
+    <div className="w-28 md:w-36 aspect-[2/3] bg-gradient-to-br from-amber-100 to-amber-200 dark:from-zinc-800 dark:to-zinc-900 rounded-lg shadow-2xl flex items-center justify-center border border-stone-200 dark:border-zinc-700">
+      <BookOpen className="text-amber-600 dark:text-zinc-500" size={32} />
+    </div>
+  );
 
   return (
     <div className="relative w-full rounded-2xl overflow-hidden border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 group">
@@ -31,6 +44,7 @@ export const FeaturedBookHero: React.FC<FeaturedBookHeroProps> = ({
             alt="" 
             className="w-full h-full object-cover opacity-20 dark:opacity-15 blur-2xl scale-110"
             aria-hidden="true"
+            onError={handleImageError}
           />
         )}
         {/* Gradient Overlay */}
@@ -42,15 +56,21 @@ export const FeaturedBookHero: React.FC<FeaturedBookHeroProps> = ({
         {/* Book Cover */}
         <div className="shrink-0 relative cursor-pointer group/cover" onClick={() => onViewDetails(book)}>
           {hasCover ? (
-            <img 
-              src={book.coverUrl} 
-              alt={book.title}
-              className="w-28 md:w-36 aspect-[2/3] object-cover rounded-lg shadow-2xl shadow-black/20 dark:shadow-black/50 border border-stone-200/50 dark:border-white/10 group-hover/cover:-translate-y-1 transition-transform duration-300"
-            />
-          ) : (
-            <div className="w-28 md:w-36 aspect-[2/3] bg-gradient-to-br from-amber-100 to-amber-200 dark:from-zinc-800 dark:to-zinc-900 rounded-lg shadow-2xl flex items-center justify-center border border-stone-200 dark:border-zinc-700">
-              <BookOpen className="text-amber-600 dark:text-zinc-500" size={32} />
+            <div className="relative">
+              {!imageLoaded && (
+                <div className="absolute inset-0 w-28 md:w-36 aspect-[2/3] bg-gradient-to-br from-amber-100 to-amber-200 dark:from-zinc-800 dark:to-zinc-900 rounded-lg animate-pulse" />
+              )}
+              <img 
+                src={book.coverUrl} 
+                alt={book.title}
+                className={`w-28 md:w-36 aspect-[2/3] object-cover rounded-lg shadow-2xl shadow-black/20 dark:shadow-black/50 border border-stone-200/50 dark:border-white/10 group-hover/cover:-translate-y-1 transition-all duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onError={handleImageError}
+                onLoad={handleImageLoad}
+                loading="lazy"
+              />
             </div>
+          ) : (
+            <PlaceholderCover />
           )}
         </div>
         
