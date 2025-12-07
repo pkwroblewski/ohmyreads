@@ -11,7 +11,6 @@ interface BookCardProps {
 
 export const BookCard: React.FC<BookCardProps> = ({ book, compact = false, onClick, onAddToLibrary }) => {
   const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
   
   const hasCover = Boolean(book.coverUrl && book.coverUrl.trim() !== '' && !imageError);
 
@@ -23,14 +22,6 @@ export const BookCard: React.FC<BookCardProps> = ({ book, compact = false, onCli
   const handleViewClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onClick?.(book);
-  };
-
-  const handleImageError = () => {
-    setImageError(true);
-  };
-
-  const handleImageLoad = () => {
-    setImageLoaded(true);
   };
 
   // Fallback placeholder component
@@ -51,20 +42,12 @@ export const BookCard: React.FC<BookCardProps> = ({ book, compact = false, onCli
     >
       <div className={`relative overflow-hidden bg-soft dark:bg-zinc-800 ${compact ? 'h-48' : 'h-64'}`}>
         {hasCover ? (
-          <>
-            {/* Loading skeleton */}
-            {!imageLoaded && (
-              <div className="absolute inset-0 bg-gradient-to-br from-soft to-sand dark:from-zinc-800 dark:to-zinc-900 animate-pulse" />
-            )}
-            <img 
-              src={book.coverUrl} 
-              alt={book.title}
-              className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${imageLoaded ? 'opacity-90 group-hover:opacity-100' : 'opacity-0'}`}
-              onError={handleImageError}
-              onLoad={handleImageLoad}
-              loading="lazy"
-            />
-          </>
+          <img 
+            src={book.coverUrl} 
+            alt={book.title}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 opacity-90 group-hover:opacity-100"
+            onError={() => setImageError(true)}
+          />
         ) : (
           <PlaceholderCover />
         )}
